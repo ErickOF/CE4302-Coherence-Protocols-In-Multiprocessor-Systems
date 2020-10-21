@@ -12,8 +12,10 @@ class CacheL1:
                 Numbers of blocks.
         """
         self.__associativity = associativity
-        self.__state = 'I'
         self.__size = size
+        # Finite State Machine
+        self.__fsm = ['I' for _ in range(self.__size)]
+        # Memory blocks
         self.__mem = ['0000' for _ in range(self.__size)]
 
     def get_size(self) -> int:
@@ -25,8 +27,9 @@ class CacheL1:
         """
         return self.__size
 
-    def read(self, addr: int) -> str:
-        """This method reads the data in a memory address.
+    def read(self, addr: int) -> dict:
+        """This method reads the data in a memory address and returns
+        its contants and its state.
 
         Params
         --------------------------------------------------------------
@@ -35,7 +38,7 @@ class CacheL1:
 
         Returns
         --------------------------------------------------------------
-            The data in the specified memory address.
+            The data and the state in the specified memory address.
         """
-        return self.__mem[addr]
+        return { 'value': self.__mem[addr], 'state': self.__fsm[addr] }
 

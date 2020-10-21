@@ -1,8 +1,12 @@
 from PyQt5 import QtWidgets, QtGui, QtCore, uic
+from PyQt5.QtWidgets import QLabel, QLineEdit, QMessageBox
 from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem
+from threading import Thread
+from time import sleep
 
 from hardware.system import System
 from hardware.cpu.processor import Processor
+from utils.formats import instr2string
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -11,12 +15,32 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         """Constructor.
         """
+        self.__cycles = 0
+        self.__frequency = 1
+        self.__opened = True
+        self.__running = False
         # Call the inherited classes __init__ method
         super(MainWindow, self).__init__()
         # Load the .ui file
         uic.loadUi('./gui/mainwindow.ui', self)
 
         # Components
+        # Start button
+        self.__btnStart = self.findChild(QPushButton, 'btnStart')
+        self.__btnStart.clicked.connect(self.__btnStartOnClick)
+
+        # Processors' instruction labels
+        self.__lblP1Instruction = self.findChild(QLabel, 'lblP1Instr')
+        self.__lblP2Instruction = self.findChild(QLabel, 'lblP2Instr')
+        self.__lblP3Instruction = self.findChild(QLabel, 'lblP3Instr')
+        self.__lblP4Instruction = self.findChild(QLabel, 'lblP4Instr')
+
+        # Cycle label
+        self.__lblCycles = self.findChild(QLabel, 'lblCycles')
+
+        # Frequency field
+        self.__leFrequency = self.findChild(QLineEdit, 'leFrequency')
+
         # Cache tables
         self._cache_tables: list = [self.findChild(QTableWidget, 'tbP1L1Cache'),
                                     self.findChild(QTableWidget, 'tbP2L1Cache'),
@@ -34,6 +58,37 @@ class MainWindow(QtWidgets.QMainWindow):
         self.__init_cache_tables()
         self.__init_memory_table()
 
+        # Create thread to update the GUI
+        self.__t_update = Thread(target=self.__update)
+        self.__t_update.start()
+
+    def __btnStartOnClick(self) -> None:
+        """This method is executed when the start button is pressed.
+        Starts the system and disable the button.
+        """
+        try:
+            # Get result
+            self.__frequency: float = float(self.__leFrequency.text())
+
+            if 0 < self.__frequency < 8:
+                # Restart cycles
+                self.__cycles = 0
+                # Set clock frequency
+                self.__system.set_frequency(self.__frequency)
+                # Start system
+                self.__system.turn_on()
+                self.__running = True
+                # Desable button
+                self.__btnStart.setEnabled(False)
+            else:
+                self.__showMessageDialog('Invalid frequency!',
+                        'Frequency must be greater than 0 and less then 8.',
+                        QMessageBox.Warning)
+        except ValueError:
+            self.__showMessageDialog('Invalid frequency!',
+                                    'A number is required.',
+                                    QMessageBox.Warning)
+
     def __init_cache_tables(self) -> None:
         """This method fills the cache table of each processor.
         """
@@ -46,9 +101,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 address: str = bin(j)[2:]
                 address = '0' * (2 - len(address)) + address
 
+                # Read cache
+                block: dict = processor.read_cache(j)
+
                 # Compute value
-                value: str = processor.get_mem_block(j)
-                value = '0x' + '0' * (4 - len(value)) + value
+                value = '0x' + '0' * (4 - len(block['value'])) +\
+                                        block['value']
 
                 # Insert address
                 self._cache_tables[i].setItem(j, 0,
@@ -56,6 +114,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Insert value
                 self._cache_tables[i].setItem(j, 1,
                                 QTableWidgetItem(value))
+                # Insert state
+                self._cache_tables[i].setItem(j, 2,
+                                QTableWidgetItem(block['state']))
 
     def __init_memory_table(self) -> None:
         """This method fills the memory table.
@@ -75,4 +136,71 @@ class MainWindow(QtWidgets.QMainWindow):
             # Insert value
             self._tb_shared_mem.setItem(i, 1,
                                     QTableWidgetItem(value))
+
+    def __showMessageDialog(self, title: str, msg: str,
+                            icon=QMessageBox.Information,
+                            buttons=[('Ok', QMessageBox.YesRole)]) -> int:
+        """This method displays a message dialog with some important
+        information for the user.
+
+        Params
+        --------------------------------------------------------------
+            title: str
+                Dialog title.
+            msg: str
+                Dialog message.
+            icon: Icon
+                Dialog icon. QMessageBox.Information by default,
+            buttons: list
+                Buttons to add. Must contain tuple with button message 
+                and Button Role. [('Ok', QMessageBox.YesRole)] by
+                default.
+
+        Returns
+        --------------------------------------------------------------
+            Result corresponding to the user answer.
+        """
+        # Message Box
+        msgBox = QMessageBox()
+
+        # Icon, message and tittle
+        msgBox.setIcon(icon)
+        msgBox.setText(msg)
+        msgBox.setWindowTitle(title)
+
+        # Buttons
+        for button in buttons:
+            msgBox.addButton(QPushButton(button[0]), button[1])
+
+        # Waits for the user answer and returns it
+        return msgBox.exec_()
+
+    def __update(self) -> None:
+        """This method updates the window.
+        """
+        while (self.__opened):
+            # Update cycles
+            if (self.__running):
+                self.__cycles += 1
+
+            # Get instructions
+            instructions = self.__system.get_instructions()
+
+            # Set instruction text
+            self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
+            self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
+            self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
+            self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
+
+            # Set current cycle
+            self.__lblCycles.setText(f'Cycle: {self.__cycles}')
+
+            sleep(1 / self.__frequency)
+
+    def closeEvent(self, event):
+        """This method is called when the window closes.
+        """
+        self.__opened = False
+        self.__running = False
+        self.__system.turn_off()
 

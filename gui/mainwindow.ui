@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1080</width>
-    <height>950</height>
+    <height>900</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -48,9 +48,15 @@
       <x>10</x>
       <y>680</y>
       <width>241</width>
-      <height>181</height>
+      <height>151</height>
      </rect>
     </property>
+    <property name="textElideMode">
+     <enum>Qt::ElideMiddle</enum>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>75</number>
+    </attribute>
     <row>
      <property name="text">
       <string>0</string>
@@ -81,16 +87,24 @@
       <string>Value</string>
      </property>
     </column>
+    <column>
+     <property name="text">
+      <string>State</string>
+     </property>
+    </column>
    </widget>
    <widget class="QTableWidget" name="tbSharedMem">
     <property name="geometry">
      <rect>
       <x>820</x>
-      <y>40</y>
+      <y>100</y>
       <width>241</width>
-      <height>591</height>
+      <height>511</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>107</number>
+    </attribute>
     <row>
      <property name="text">
       <string>0</string>
@@ -186,7 +200,7 @@
     <property name="geometry">
      <rect>
       <x>820</x>
-      <y>10</y>
+      <y>70</y>
       <width>241</width>
       <height>22</height>
      </rect>
@@ -204,9 +218,12 @@
       <x>280</x>
       <y>680</y>
       <width>241</width>
-      <height>181</height>
+      <height>151</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>75</number>
+    </attribute>
     <row>
      <property name="text">
       <string>0</string>
@@ -235,6 +252,11 @@
     <column>
      <property name="text">
       <string>Value</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>State</string>
      </property>
     </column>
    </widget>
@@ -276,9 +298,12 @@
       <x>550</x>
       <y>680</y>
       <width>241</width>
-      <height>181</height>
+      <height>151</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>75</number>
+    </attribute>
     <row>
      <property name="text">
       <string>0</string>
@@ -307,6 +332,11 @@
     <column>
      <property name="text">
       <string>Value</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>State</string>
      </property>
     </column>
    </widget>
@@ -332,9 +362,12 @@
       <x>820</x>
       <y>680</y>
       <width>241</width>
-      <height>181</height>
+      <height>151</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>75</number>
+    </attribute>
     <row>
      <property name="text">
       <string>0</string>
@@ -363,6 +396,11 @@
     <column>
      <property name="text">
       <string>Value</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>State</string>
      </property>
     </column>
    </widget>
@@ -430,6 +468,205 @@
      <pixmap>../imgs/CPUs-P4.png</pixmap>
     </property>
    </widget>
+   <widget class="QLabel" name="lblP1Instr">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>290</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Instruction P1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP2Instr">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>290</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Instruction P2</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP3Instr">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>570</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Instruction P3</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP4Instr">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>570</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Instruction P4</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP1Action">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>310</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current Action P1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP2Action">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>310</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current Action P2</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP3Action">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>590</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current Action P3</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP4Action">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>590</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current Action P4</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnStart">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>10</y>
+      <width>99</width>
+      <height>38</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblProcessorFrequency">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Processors' frequency (GHz)</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leFrequency">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>10</y>
+      <width>51</width>
+      <height>36</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblSimulationFrecuency">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1GHz = 1s in simulation</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblCycles">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>67</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cycle: 0</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -441,7 +678,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
