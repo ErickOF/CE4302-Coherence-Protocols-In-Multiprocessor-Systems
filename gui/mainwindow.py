@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, QtGui, QtCore, uic
-from PyQt5.QtWidgets import QLabel, QLineEdit, QMessageBox
+from PyQt5 import QtGui, QtCore, uic
+from PyQt5.QtWidgets import QLabel, QLineEdit, QMainWindow, QMessageBox
 from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem
 from threading import Thread
 from time import sleep
@@ -9,7 +9,7 @@ from hardware.cpu.processor import Processor
 from utils.formats import instr2string
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     """Main Window class.
     """
     def __init__(self):
@@ -96,17 +96,13 @@ class MainWindow(QtWidgets.QMainWindow):
             # Get processor
             processor: Processor = self.__system.get_processor(i)
 
-            for j in range(processor.get_cache_size()):
+            for j, block in enumerate(processor.get_cache_mem()):
                 # Compute address
-                address: str = bin(j)[2:]
-                address = '0' * (2 - len(address)) + address
-
-                # Read cache
-                block: dict = processor.read_cache(j)
+                address = block['address']
 
                 # Compute value
-                value = '0x' + '0' * (4 - len(block['value'])) +\
-                                        block['value']
+                value = '0x' + '0' * (4 - len(block['data'])) +\
+                                        block['data']
 
                 # Insert address
                 self._cache_tables[i].setItem(j, 0,

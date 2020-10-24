@@ -16,7 +16,9 @@ class System:
             size: tuple.
                 System size.
         """
+        self.__cache_cycles: int = 2
         self.__frequency: float = frequency
+        self.__ram_cycles: int = 8
         self.__size: int = size
         self.__cpus: list = [Processor(i + 1) for i in range(self.__size)]
         self.__memory: RAM = RAM(16)
