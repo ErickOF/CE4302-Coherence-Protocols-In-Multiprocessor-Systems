@@ -478,7 +478,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Instruction P1</string>
+     <string>NOP</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -494,7 +494,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Instruction P2</string>
+     <string>NOP</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -510,7 +510,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Instruction P3</string>
+     <string>NOP</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -526,7 +526,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Instruction P4</string>
+     <string>NOP</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -542,7 +542,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Current Action P1</string>
+     <string>IDLE</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -558,7 +558,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Current Action P2</string>
+     <string>IDLE</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -574,7 +574,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Current Action P3</string>
+     <string>IDLE</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -590,7 +590,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Current Action P4</string>
+     <string>IDLE</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -665,6 +665,70 @@
     </property>
     <property name="text">
      <string>Cycle: 0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP1PInstr">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>330</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NOP</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP2PInstr">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>330</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NOP</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP3PInstr">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>610</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NOP</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblP4PInstr">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>610</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NOP</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

@@ -1,3 +1,6 @@
+from threading import Lock
+
+
 class CacheL1:
     """This class model a L1 cache memory.
     """
@@ -22,8 +25,9 @@ class CacheL1:
 
             self.__mem.append({
                 'address': '0'*(2 - len(address)) + address,
+                'available': Lock(),
                 'data': '0000',
-                'state': 'I' 
+                'state': 'I'
             })
 
     def get_mem(self) -> list:
@@ -43,6 +47,25 @@ class CacheL1:
             Cache size.
         """
         return self.__size
+
+    def is_in_cache(self, address: str) -> bool:
+        """This method returns True if an address is in cache, False
+        otherwise.
+
+        Params
+        --------------------------------------------------------------
+            address: str.
+                Address to be fetched.
+
+        Returns
+        --------------------------------------------------------------
+            True if an address is in cache, False otherwise.
+        """
+        for block in self.__mem:
+            if block['address'] == address:
+                return True
+
+        return False
 
     def read(self, addr: str) -> dict:
         """This method reads the data in a memory address and returns

@@ -23,7 +23,8 @@ class System:
         self.__cpus: list = [Processor(i + 1) for i in range(self.__size)]
         self.__memory: RAM = RAM(16)
         self.__running: bool = False
-        self.__instructions: list = [{} for _ in range(self.__size)]
+        self.__instructions: list = [{}] * self.__size
+        self.__old_instructions: list = [{}] * self.__size
 
     def __processor_controller(self, _id) -> None:
         """This method is used to control a single processor.
@@ -34,9 +35,16 @@ class System:
                 Processor ID.
         """
         while (self.__running):
-            # Get an instruction
-            instruction = self.__cpus[_id].generate_instruction()
-            self.__instructions[_id] = instruction
+            # Check if there's not instruction
+            if not self.__cpus[_id].is_executing():
+                # Set old instruction
+                self.__old_instructions[_id] = self.__instructions[_id]
+                # Get a new instruction
+                instruction = self.__cpus[_id].generate_instruction()
+                self.__instructions[_id] = instruction
+
+            # Execute a new instruction
+            self.__cpus[_id].excute()
 
             sleep(1 / self.__frequency)
     
@@ -48,6 +56,15 @@ class System:
             A list with the current instruction in each processor.
         """
         return self.__instructions
+
+    def get_old_instructions(self) -> list:
+        """This method returns all old instructions in the processors.
+
+        Returns
+        --------------------------------------------------------------
+            A list with the old instruction in each processor.
+        """
+        return self.__old_instructions
 
     def get_size(self) -> int:
         """This method returns the system size.

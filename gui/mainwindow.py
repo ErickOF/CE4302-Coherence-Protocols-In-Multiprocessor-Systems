@@ -35,6 +35,18 @@ class MainWindow(QMainWindow):
         self.__lblP3Instruction = self.findChild(QLabel, 'lblP3Instr')
         self.__lblP4Instruction = self.findChild(QLabel, 'lblP4Instr')
 
+        # Processors' action labels
+        self.__lblP1Action = self.findChild(QLabel, 'lblP1Action')
+        self.__lblP2Action = self.findChild(QLabel, 'lblP2Action')
+        self.__lblP3Action = self.findChild(QLabel, 'lblP3Action')
+        self.__lblP4Action = self.findChild(QLabel, 'lblP4Action')
+
+        # Processors' previous instruction labels
+        self.__lblP1PInstruction = self.findChild(QLabel, 'lblP1PInstr')
+        self.__lblP2PInstruction = self.findChild(QLabel, 'lblP2PInstr')
+        self.__lblP3PInstruction = self.findChild(QLabel, 'lblP3PInstr')
+        self.__lblP4PInstruction = self.findChild(QLabel, 'lblP4PInstr')
+
         # Cycle label
         self.__lblCycles = self.findChild(QLabel, 'lblCycles')
 
@@ -181,12 +193,24 @@ class MainWindow(QMainWindow):
 
             # Get instructions
             instructions = self.__system.get_instructions()
+            old_instr = self.__system.get_old_instructions()
 
             # Set instruction text
             self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
             self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
             self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
             self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
+
+            # Set processors actions
+            self.__lblP1Action.setText(self.__system.get_processor(0).get_state())
+            self.__lblP2Action.setText(self.__system.get_processor(1).get_state())
+            self.__lblP3Action.setText(self.__system.get_processor(2).get_state())
+            self.__lblP4Action.setText(self.__system.get_processor(3).get_state())
+
+            self.__lblP1PInstruction.setText(instr2string(0, old_instr[0]))
+            self.__lblP2PInstruction.setText(instr2string(1, old_instr[1]))
+            self.__lblP3PInstruction.setText(instr2string(2, old_instr[2]))
+            self.__lblP4PInstruction.setText(instr2string(3, old_instr[3]))
 
             # Set current cycle
             self.__lblCycles.setText(f'Cycle: {self.__cycles}')

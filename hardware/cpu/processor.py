@@ -21,12 +21,39 @@ class Processor():
         self.__executing: bool = False
         self.__instruction: dict = {}
         self.__instruction_types: list = ['READ', 'WRITE', 'CALC']
+        self.__state = 'NOP'
 
     def excute(self) -> None:
         """This method executes the current instruction in the
         processor.
         """
-        self.__cycles -= 1
+        self.__executing = True
+        self.__state = 'EXECUTING'
+
+        # Check if the instruction needs memory
+        if self.__instruction['type'] != 'CALC':
+            # Search for the cache block
+            for i, block in enumerate(self.__cache_l1.get_mem()):
+                # Check if the block is valid and the memory address
+                # is the correct
+                if block['state'] != 'I' and \
+                    block['address'] == self.__instruction['address']:
+                    break
+
+            # Check if the cache block was found
+            if self.__cache_l1.get_size() < i:
+                # Check if it has to read
+                if self.__instruction['type'] == 'READING':
+                    self.__state = 'READING'
+                else:
+                    self.__state = 'WRITING'
+            # Cache miss
+            else:
+                self.__state = f'MISS {self.__instruction["address"]}'
+        else:
+            self.__state = 'COMPUTING'
+
+        self.__executing = False
 
     def generate_instruction(self) -> dict:
         """This method generates a random instruction.
@@ -53,7 +80,7 @@ class Processor():
         if _type == 'READ' or _type == 'WRITE':
             # Insert the address
             address: str = bin(randint(0, self.get_cache_size() - 1))[2:]
-            instr['address'] = '0'*(2 - len(address)) + address
+            instr['address'] = '0' * (2 - len(address)) + address
 
             # Add two cycle to read cache blocks
             self.__cycles['cache'] = 2
@@ -94,6 +121,30 @@ class Processor():
             L1 Cache size.
         """
         return self.__cache_l1.get_size()
+
+    def get_state(self) -> str:
+        """This method returns the current processor state.
+
+        Returns
+        --------------------------------------------------------------
+            The processor state.
+        """
+        return self.__state
+
+    def is_in_cache(self, address: str) -> bool:
+        """This method returns True if an address is in cache, False
+        otherwise.
+
+        Params
+        --------------------------------------------------------------
+            address: str.
+                Address to be fetched.
+
+        Returns
+        --------------------------------------------------------------
+            True if an address is in cache, False otherwise.
+        """
+        return self.__cache_l1.is_in_cache()
 
     def is_executing(self) -> bool:
         """This method returns True if the processor is executing an

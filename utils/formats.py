@@ -13,7 +13,7 @@ def instr2string(_id: int, inst: dict) -> str:
         A string with the instruction format.
     """
     if inst == {}:
-        return ''
+        return 'NOP'
     elif inst['type'] == 'CALC':
         return f'P{_id}: {inst["type"]}\n'
     elif inst['type'] == 'READ':
