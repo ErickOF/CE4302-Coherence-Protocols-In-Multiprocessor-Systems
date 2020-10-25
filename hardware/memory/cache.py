@@ -1,3 +1,4 @@
+from random import randint
 from threading import Lock
 
 
@@ -24,7 +25,7 @@ class CacheL1:
             address: str = bin(i)[2:]
 
             self.__mem.append({
-                'address': '0'*(2 - len(address)) + address,
+                'address': '0' * (4 - len(address)) + address,
                 'available': Lock(),
                 'data': '0000',
                 'state': 'I'
@@ -85,4 +86,56 @@ class CacheL1:
                 return block
 
         return {}
+
+    def write(self, addr: str, data: str) -> None:
+        """This method writes the data in a memory address and change
+        the block state.
+
+        Params
+        --------------------------------------------------------------
+            addr: str.
+                Memory address.
+            data: str.
+                Data to be written.
+        """
+        # Searching for the cache block
+        found = False
+
+        for block in self.__mem:
+            # Check if the block is valid and the memory address is
+            # the correct
+            if block['address'] == addr:
+                block['data'] = data
+                block['state'] = 'M'
+                found = True
+                break
+
+        # Check if the block was not in cache
+        if not found:
+            invalid = False
+
+            # Searching for an invalid block
+            for block in self.__mem:
+                if block['state'] == 'I':
+                    print('Writing in an invalid block...')
+                    # Set the data in the invalid block
+                    block['address'] = addr
+                    block['data'] = data
+                    block['state'] = 'E'
+
+                    invalid = True
+                    break
+            
+            # If an invalid block does not exist
+            if not invalid:
+                # Get a random block
+                block = randint(0, self.__size - 1)
+
+                # Set the new information
+                self.__mem[block] = {
+                    'address': addr,
+                    'available': Lock(),
+                    'data': data,
+                    'state': 'E'
+                }
 

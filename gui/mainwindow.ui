@@ -51,6 +51,9 @@
       <height>151</height>
      </rect>
     </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
     <property name="textElideMode">
      <enum>Qt::ElideMiddle</enum>
     </property>
@@ -101,6 +104,9 @@
       <width>241</width>
       <height>511</height>
      </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
      <number>107</number>
@@ -221,6 +227,9 @@
       <height>151</height>
      </rect>
     </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
      <number>75</number>
     </attribute>
@@ -301,6 +310,9 @@
       <height>151</height>
      </rect>
     </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
      <number>75</number>
     </attribute>
@@ -364,6 +376,9 @@
       <width>241</width>
       <height>151</height>
      </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
      <number>75</number>

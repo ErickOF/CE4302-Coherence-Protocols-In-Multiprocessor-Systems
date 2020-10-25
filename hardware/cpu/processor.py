@@ -2,6 +2,7 @@ from numpy.random import normal
 from random import randint
 
 from hardware.memory.cache import CacheL1
+#from hardware.control.controller import FSMController
 
 
 class Processor():
@@ -44,15 +45,19 @@ class Processor():
             if self.__cache_l1.get_size() < i:
                 # Check if it has to read
                 if self.__instruction['type'] == 'READING':
-                    self.__state = 'READING'
+                    self.__state = 'READING CACHE'
                 else:
-                    self.__state = 'WRITING'
+                    self.__state = 'WRITING IN CACHE'
             # Cache miss
             else:
                 self.__state = f'MISS {self.__instruction["address"]}'
         else:
             self.__state = 'COMPUTING'
+            self.__executing = False
 
+    def finish(self) -> None:
+        """This method finished the execution of the instruction.
+        """
         self.__executing = False
 
     def generate_instruction(self) -> dict:
@@ -79,8 +84,8 @@ class Processor():
         # If the instruction is write or read
         if _type == 'READ' or _type == 'WRITE':
             # Insert the address
-            address: str = bin(randint(0, self.get_cache_size() - 1))[2:]
-            instr['address'] = '0' * (2 - len(address)) + address
+            address: str = bin(randint(0, 15))[2:]
+            instr['address'] = '0' * (4 - len(address)) + address
 
             # Add two cycle to read cache blocks
             self.__cycles['cache'] = 2
@@ -170,4 +175,27 @@ class Processor():
             The data and state in the specified memory address.
         """
         return self.__cache_l1.read(addr)
+
+    def set_state(self, state: str) -> None:
+        """This method sets the new state for the processor.
+
+        Params
+        --------------------------------------------------------------
+            state: str.
+                New state for the processor.
+        """
+        self.__state = state
+
+    def write(self, addr: str, data: str) -> None:
+        """This method writes the data in a cache address and change
+        the block state.
+
+        Params
+        --------------------------------------------------------------
+            addr: str.
+                Memory address.
+            data: str.
+                Data to be written.
+        """
+        self.__cache_l1.write(addr, data)
 

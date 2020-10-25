@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
         # Create system
         self.__system: System = System(4)
 
-        # Create 
+        # Create tables
         self.__init_cache_tables()
         self.__init_memory_table()
 
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         """This method fills the cache table of each processor.
         """
         for i in range(len(self._cache_tables)):
+            self._cache_tables[i].clear()
             # Get processor
             processor: Processor = self.__system.get_processor(i)
 
@@ -129,13 +130,15 @@ class MainWindow(QMainWindow):
     def __init_memory_table(self) -> None:
         """This method fills the memory table.
         """
+        self._tb_shared_mem.clear()
+ 
         for i in range(self.__system.get_shared_mem_size()):
             # Compute address
             address: str = bin(i)[2:]
             address = '0' * (4 - len(address)) + address
 
             # Compute value
-            value: str = self.__system.read_shared_memory(i)
+            value: str = self.__system.read_shared_memory(address)
             value = '0x' + '0' * (4 - len(value)) + value
         
             # Insert address
@@ -191,31 +194,35 @@ class MainWindow(QMainWindow):
             if (self.__running):
                 self.__cycles += 1
 
-            # Get instructions
-            instructions = self.__system.get_instructions()
-            old_instr = self.__system.get_old_instructions()
+                # Get instructions
+                instructions = self.__system.get_instructions()
+                old_instr = self.__system.get_old_instructions()
 
-            # Set instruction text
-            self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
-            self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
-            self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
-            self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
+                # Set instruction text
+                self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
+                self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
+                self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
+                self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
 
-            # Set processors actions
-            self.__lblP1Action.setText(self.__system.get_processor(0).get_state())
-            self.__lblP2Action.setText(self.__system.get_processor(1).get_state())
-            self.__lblP3Action.setText(self.__system.get_processor(2).get_state())
-            self.__lblP4Action.setText(self.__system.get_processor(3).get_state())
+                # Set processors actions
+                self.__lblP1Action.setText(self.__system.get_processor(0).get_state())
+                self.__lblP2Action.setText(self.__system.get_processor(1).get_state())
+                self.__lblP3Action.setText(self.__system.get_processor(2).get_state())
+                self.__lblP4Action.setText(self.__system.get_processor(3).get_state())
 
-            self.__lblP1PInstruction.setText(instr2string(0, old_instr[0]))
-            self.__lblP2PInstruction.setText(instr2string(1, old_instr[1]))
-            self.__lblP3PInstruction.setText(instr2string(2, old_instr[2]))
-            self.__lblP4PInstruction.setText(instr2string(3, old_instr[3]))
+                self.__lblP1PInstruction.setText(instr2string(0, old_instr[0]))
+                self.__lblP2PInstruction.setText(instr2string(1, old_instr[1]))
+                self.__lblP3PInstruction.setText(instr2string(2, old_instr[2]))
+                self.__lblP4PInstruction.setText(instr2string(3, old_instr[3]))
 
-            # Set current cycle
-            self.__lblCycles.setText(f'Cycle: {self.__cycles}')
+                # Set current cycle
+                self.__lblCycles.setText(f'Cycle: {self.__cycles}')
 
-            sleep(1 / self.__frequency)
+                # Update tables
+                self.__init_cache_tables()
+                self.__init_memory_table()
+
+                sleep(1 / self.__frequency)
 
     def closeEvent(self, event):
         """This method is called when the window closes.

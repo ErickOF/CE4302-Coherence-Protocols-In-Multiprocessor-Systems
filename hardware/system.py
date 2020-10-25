@@ -21,7 +21,7 @@ class System:
         self.__ram_cycles: int = 8
         self.__size: int = size
         self.__cpus: list = [Processor(i + 1) for i in range(self.__size)]
-        self.__memory: RAM = RAM(16)
+        self.__memory: RAM = RAM.get_instance(16)
         self.__running: bool = False
         self.__instructions: list = [{}] * self.__size
         self.__old_instructions: list = [{}] * self.__size
@@ -34,11 +34,14 @@ class System:
             _id: int.
                 Processor ID.
         """
+        data = '0' * 4
+
         while (self.__running):
             # Check if there's not instruction
             if not self.__cpus[_id].is_executing():
                 # Set old instruction
                 self.__old_instructions[_id] = self.__instructions[_id]
+
                 # Get a new instruction
                 instruction = self.__cpus[_id].generate_instruction()
                 self.__instructions[_id] = instruction
@@ -46,7 +49,56 @@ class System:
             # Execute a new instruction
             self.__cpus[_id].excute()
 
-            sleep(1 / self.__frequency)
+            # Check if found the memory address
+            if self.__cpus[_id].is_executing():
+                state: str = self.__cpus[_id].get_state()
+
+                if 'MISS' in state:
+                    # Check if the memory bus is busy
+                    if self.__memory.is_busy():
+                        print(f'P{_id} waiting')
+                        self.__cpus[_id].set_state('WAITING BUS')
+
+                        # Wait a cycle
+                        sleep(1 / self.__frequency)
+                    else:
+                        # Block the bus
+                        self.__memory.block_bus()
+                        print(f'P{_id} using the bus')
+
+                        # Get current instruction
+                        instr = self.__instructions[_id]
+
+                        if self.__instructions[_id]['type'] == 'READ':
+                            print(f'P{_id} is reading memory')
+
+                            # Wait a cycle
+                            sleep(1 / self.__frequency)
+
+                            # Read the data from the memory
+                            data = self.__memory.read(instr['address'])
+                            # Write the date in cache
+                            self.__cpus[_id].write(instr['address'], data)
+                        else:
+                            print(f'P{_id} is writing in memory')
+
+                            # Wait a cycle
+                            sleep(1 / self.__frequency)
+
+                            # Write the date in memory and cache
+                            self.__memory.write(instr['address'], instr['data'])
+                            self.__cpus[_id].write(instr['address'], instr['data'])
+
+                        # Free the bus
+                        print(f'P{_id} released the bus')
+                        self.__memory.free_bus()
+                        self.__cpus[_id].finish()
+                else:
+                    # Wait a cycle
+                    sleep(1 / self.__frequency)
+            else:
+                # Wait a cycle
+                sleep(1 / self.__frequency)
     
     def get_instructions(self) -> list:
         """This method returns all instructions in the processors.
@@ -98,13 +150,13 @@ class System:
         """
         return self.__cpus[pos]
 
-    def read_shared_memory(self, addr: int) -> str:
+    def read_shared_memory(self, addr: str) -> str:
         """This method reads the data in a specific address of the
         shared memory.
 
         Params
         --------------------------------------------------------------
-            addr: int.
+            addr: str.
                 Memory address.
 
         Returns
