@@ -17,17 +17,29 @@ class MainWindow(QMainWindow):
         """
         self.__cycles = 0
         self.__frequency = 1
+        self.__total_cycles = 0
         self.__opened = True
         self.__running = False
+        self.__wait = True
+
         # Call the inherited classes __init__ method
         super(MainWindow, self).__init__()
+
         # Load the .ui file
         uic.loadUi('./gui/mainwindow.ui', self)
 
         # Components
+        # Restart button
+        self.__btnRestart = self.findChild(QPushButton, 'btnRestart')
+        self.__btnRestart.clicked.connect(self.__btnRestartOnClick)
+
         # Start button
         self.__btnStart = self.findChild(QPushButton, 'btnStart')
         self.__btnStart.clicked.connect(self.__btnStartOnClick)
+
+        # Step button
+        self.__btnStep = self.findChild(QPushButton, 'btnStep')
+        self.__btnStep.clicked.connect(self.__btnStepOnClick)
 
         # Processors' instruction labels
         self.__lblP1Instruction = self.findChild(QLabel, 'lblP1Instr')
@@ -53,6 +65,9 @@ class MainWindow(QMainWindow):
         # Frequency field
         self.__leFrequency = self.findChild(QLineEdit, 'leFrequency')
 
+        # Max Cycles field
+        self.__leMaxCycles = self.findChild(QLineEdit, 'leMaxCycles')
+
         # Cache tables
         self._cache_tables: list = [self.findChild(QTableWidget, 'tbP1L1Cache'),
                                     self.findChild(QTableWidget, 'tbP2L1Cache'),
@@ -67,31 +82,60 @@ class MainWindow(QMainWindow):
         self.__system: System = System(4)
 
         # Create tables
-        self.__init_cache_tables()
-        self.__init_memory_table()
+        self.__initCacheTables()
+        self.__initMemoryTable()
 
         # Create thread to update the GUI
         self.__t_update = Thread(target=self.__update)
         self.__t_update.start()
+
+    def __btnRestartOnClick(self) -> None:
+        """This method is executed when the restart button is pressed.
+        Restarts all system.
+        """
+        # Stop current system
+        self.__running = False
+        self.__system.turn_off()
+        self.__cycles = 0
+
+        # Create a new system
+        self.__system = System(4)
+
+        # Enable the start button again
+        self.__btnStart.setEnabled(True)
 
     def __btnStartOnClick(self) -> None:
         """This method is executed when the start button is pressed.
         Starts the system and disable the button.
         """
         try:
-            # Get result
+            # Get frequency
             self.__frequency: float = float(self.__leFrequency.text())
 
             if 0 < self.__frequency < 8:
-                # Restart cycles
-                self.__cycles = 0
-                # Set clock frequency
-                self.__system.set_frequency(self.__frequency)
-                # Start system
-                self.__system.turn_on()
-                self.__running = True
-                # Desable button
-                self.__btnStart.setEnabled(False)
+                try:
+                    # Get frequency
+                    self.__total_cycles: int = int(self.__leMaxCycles.text())
+
+                    # Restart cycles
+                    self.__cycles = 0
+
+                    # We need to wait every cycle
+                    self.__wait = True
+
+                    # Set clock frequency
+                    self.__system.set_frequency(self.__frequency)
+
+                    # Start system
+                    self.__system.turn_on()
+                    self.__running = True
+
+                    # Desable button
+                    self.__btnStart.setEnabled(False)
+                except ValueError:
+                    self.__showMessageDialog('Invalid max cycles!',
+                                            'An integer number is required.',
+                                            QMessageBox.Warning)
             else:
                 self.__showMessageDialog('Invalid frequency!',
                         'Frequency must be greater than 0 and less then 8.',
@@ -101,11 +145,27 @@ class MainWindow(QMainWindow):
                                     'A number is required.',
                                     QMessageBox.Warning)
 
-    def __init_cache_tables(self) -> None:
+    def __btnStepOnClick(self) -> None:
+        """This method is executed when the start button is pressed.
+        Run one step in the system.
+        """
+        # No wait
+        self.__wait = False
+
+        # Set clock frequency
+        self.__system.set_frequency(self.__frequency)
+
+        # Start system
+        self.__system.turn_on(False)
+        self.__running = True
+
+    def __initCacheTables(self) -> None:
         """This method fills the cache table of each processor.
         """
         for i in range(len(self._cache_tables)):
+            # Clear the table
             self._cache_tables[i].clear()
+
             # Get processor
             processor: Processor = self.__system.get_processor(i)
 
@@ -127,7 +187,7 @@ class MainWindow(QMainWindow):
                 self._cache_tables[i].setItem(j, 2,
                                 QTableWidgetItem(block['state']))
 
-    def __init_memory_table(self) -> None:
+    def __initMemoryTable(self) -> None:
         """This method fills the memory table.
         """
         self._tb_shared_mem.clear()
@@ -194,35 +254,49 @@ class MainWindow(QMainWindow):
             if (self.__running):
                 self.__cycles += 1
 
-                # Get instructions
-                instructions = self.__system.get_instructions()
-                old_instr = self.__system.get_old_instructions()
+                # Stop if it doesn't have to wait
+                if not self.__wait:
+                    self.__running = False
+                else:
+                    # Check it the cycles are not infinite
+                    if self.__total_cycles > 0:
+                        # Check if the cycles were completed
+                        if self.__cycles == self.__total_cycles:
+                            # And stop
+                            sleep(0.5)
+                            self.__system.turn_off()
+                            self.__running = False
+                            self.__btnStart.setEnabled(True)
 
-                # Set instruction text
-                self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
-                self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
-                self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
-                self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
+            # Get instructions
+            instructions = self.__system.get_instructions()
+            old_instr = self.__system.get_old_instructions()
 
-                # Set processors actions
-                self.__lblP1Action.setText(self.__system.get_processor(0).get_state())
-                self.__lblP2Action.setText(self.__system.get_processor(1).get_state())
-                self.__lblP3Action.setText(self.__system.get_processor(2).get_state())
-                self.__lblP4Action.setText(self.__system.get_processor(3).get_state())
+            # Set instruction text
+            self.__lblP1Instruction.setText(instr2string(0, instructions[0]))
+            self.__lblP2Instruction.setText(instr2string(1, instructions[1]))
+            self.__lblP3Instruction.setText(instr2string(2, instructions[2]))
+            self.__lblP4Instruction.setText(instr2string(3, instructions[3]))
 
-                self.__lblP1PInstruction.setText(instr2string(0, old_instr[0]))
-                self.__lblP2PInstruction.setText(instr2string(1, old_instr[1]))
-                self.__lblP3PInstruction.setText(instr2string(2, old_instr[2]))
-                self.__lblP4PInstruction.setText(instr2string(3, old_instr[3]))
+            # Set processors actions
+            self.__lblP1Action.setText(self.__system.get_processor(0).get_state())
+            self.__lblP2Action.setText(self.__system.get_processor(1).get_state())
+            self.__lblP3Action.setText(self.__system.get_processor(2).get_state())
+            self.__lblP4Action.setText(self.__system.get_processor(3).get_state())
 
-                # Set current cycle
-                self.__lblCycles.setText(f'Cycle: {self.__cycles}')
+            self.__lblP1PInstruction.setText(instr2string(0, old_instr[0]))
+            self.__lblP2PInstruction.setText(instr2string(1, old_instr[1]))
+            self.__lblP3PInstruction.setText(instr2string(2, old_instr[2]))
+            self.__lblP4PInstruction.setText(instr2string(3, old_instr[3]))
 
-                # Update tables
-                self.__init_cache_tables()
-                self.__init_memory_table()
+            # Set current cycle
+            self.__lblCycles.setText(f'Cycle: {self.__cycles}')
 
-                sleep(1 / self.__frequency)
+            # Update tables
+            self.__initCacheTables()
+            self.__initMemoryTable()
+
+            sleep(0.5)
 
     def closeEvent(self, event):
         """This method is called when the window closes.

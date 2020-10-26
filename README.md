@@ -1,1 +1,1 @@
-# CE4302-Coherence-Protocols-In-Multiprocessor-Systems
+# CE4302 Coherence Protocols In Multiprocessor Systems

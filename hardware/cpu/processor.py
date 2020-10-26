@@ -2,7 +2,6 @@ from numpy.random import normal
 from random import randint
 
 from hardware.memory.cache import CacheL1
-#from hardware.control.controller import FSMController
 
 
 class Processor():
@@ -33,21 +32,33 @@ class Processor():
 
         # Check if the instruction needs memory
         if self.__instruction['type'] != 'CALC':
+            found: bool = False
+
             # Search for the cache block
             for i, block in enumerate(self.__cache_l1.get_mem()):
                 # Check if the block is valid and the memory address
                 # is the correct
                 if block['state'] != 'I' and \
                     block['address'] == self.__instruction['address']:
+                    found = True
                     break
 
             # Check if the cache block was found
-            if self.__cache_l1.get_size() < i:
+            if found:
                 # Check if it has to read
                 if self.__instruction['type'] == 'READING':
                     self.__state = 'READING CACHE'
                 else:
                     self.__state = 'WRITING IN CACHE'
+
+                    # Get current data and state
+                    block: dict = self.__cache_l1.read(self.__instruction['address'])
+                    state: str = 'M'
+
+                    # Check data state
+                    if block['state'] == '':
+                        state = ''
+
             # Cache miss
             else:
                 self.__state = f'MISS {self.__instruction["address"]}'
@@ -127,6 +138,15 @@ class Processor():
         """
         return self.__cache_l1.get_size()
 
+    def get_id(self) -> int:
+        """This method returns the processor identifier.
+
+        Returns
+        --------------------------------------------------------------
+            The processor ID.
+        """
+        return self.__id
+
     def get_state(self) -> str:
         """This method returns the current processor state.
 
@@ -186,7 +206,7 @@ class Processor():
         """
         self.__state = state
 
-    def write(self, addr: str, data: str) -> None:
+    def write(self, addr: str, data: str, state: str = 'E') -> None:
         """This method writes the data in a cache address and change
         the block state.
 
@@ -196,6 +216,9 @@ class Processor():
                 Memory address.
             data: str.
                 Data to be written.
+            state: str.
+                New state for the cache block. Exclusive (E) by
+                default.
         """
-        self.__cache_l1.write(addr, data)
+        self.__cache_l1.write(addr, data, state)
 

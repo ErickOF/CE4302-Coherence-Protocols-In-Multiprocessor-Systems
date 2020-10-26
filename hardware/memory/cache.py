@@ -87,7 +87,7 @@ class CacheL1:
 
         return {}
 
-    def write(self, addr: str, data: str) -> None:
+    def write(self, addr: str, data: str, state: str = 'E') -> None:
         """This method writes the data in a memory address and change
         the block state.
 
@@ -97,16 +97,19 @@ class CacheL1:
                 Memory address.
             data: str.
                 Data to be written.
+            state: str.
+                New state for the cache block. Exclusive (E) by
+                default.
         """
-        # Searching for the cache block
         found = False
 
+        # Searching for the cache block
         for block in self.__mem:
             # Check if the block is valid and the memory address is
             # the correct
             if block['address'] == addr:
                 block['data'] = data
-                block['state'] = 'M'
+                block['state'] = state
                 found = True
                 break
 
@@ -117,11 +120,10 @@ class CacheL1:
             # Searching for an invalid block
             for block in self.__mem:
                 if block['state'] == 'I':
-                    print('Writing in an invalid block...')
                     # Set the data in the invalid block
                     block['address'] = addr
                     block['data'] = data
-                    block['state'] = 'E'
+                    block['state'] = state
 
                     invalid = True
                     break
@@ -136,6 +138,6 @@ class CacheL1:
                     'address': addr,
                     'available': Lock(),
                     'data': data,
-                    'state': 'E'
+                    'state': state
                 }
 

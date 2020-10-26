@@ -42,6 +42,12 @@ class RAM:
         """
         self.__bus.acquire(True)
 
+    def clear(self) -> None:
+        """This method clears the memory and puts '0000' in all
+        blocks.
+        """
+        self.__mem: list = ['0000'] * self.__size
+
     def free_bus(self) -> None:
         """This method releases the bus.
         """
